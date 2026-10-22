@@ -135,4 +135,4 @@ Raw data is not stored in this repository. API keys are read from environment va
 
 ## Credits
 
-Data from Global Fishing Watch and the Danish Maritime Authority. Libraries: NumPy, Pandas, scikit-learn, Matplotlib, Flask. Claude (Anthropic) was used for project planning, drafting the proposal and this README, and an early code sketch. Any further AI help will be listed here.
+Data from Global Fishing Watch and the Danish Maritime Authority. Libraries: NumPy, Pandas, scikit-learn, Matplotlib, Flask.
