@@ -74,26 +74,35 @@ def _start_position(rng, cost, density, label, tries=1000):
     raise RuntimeError("Could not find a start position in water.")
 
 
-def load_data(seed=42):
-    """Load processed real data if all files exist, otherwise use the simulator.
+def load_real_tracks():
+    """Load the cleaned Danish tracks if they exist, otherwise return None."""
+    try:
+        return pd.read_csv(PROCESSED_DIR / "tracks_clean.csv", parse_dates=["time"])
+    except (FileNotFoundError, pd.errors.EmptyDataError, ValueError):
+        return None
 
-    Returns a dict with cost, density, tracks and source ('real' or 'simulated').
+
+def load_data(seed=42):
+    """Load the real grids if both files exist, otherwise use the simulator.
+
+    Returns a dict with:
+      cost, density  the grids (real or simulated)
+      tracks         simulated boat tracks on the grid, used by the demo
+      real_tracks    cleaned Danish tracks (lat/lon, speed, turning, label) or None
+      source         'real' or 'simulated' (this describes the grids)
     """
     try:
         cost = np.load(PROCESSED_DIR / "cost.npy")
         density = np.load(PROCESSED_DIR / "density.npy")
-        tracks = pd.read_csv(PROCESSED_DIR / "tracks.csv")
-        missing = set(TRACK_COLUMNS) - set(tracks.columns)
-        if missing:
-            raise KeyError(f"tracks.csv is missing columns: {sorted(missing)}")
         if cost.shape != density.shape:
             raise ValueError("cost and density grids have different shapes")
-        return {"cost": cost, "density": density, "tracks": tracks, "source": "real"}
-    except (FileNotFoundError, pd.errors.EmptyDataError, KeyError, ValueError) as err:
-        print(f"Real data not available ({err}). Using the simulator instead.")
+        source = "real"
+    except (FileNotFoundError, ValueError) as err:
+        print(f"Real grids not available ({err}). Using the simulator instead.")
         cost, density = generate_ocean(seed)
-        return {"cost": cost, "density": density, "tracks": generate_tracks(cost, density, seed),
-                "source": "simulated"}
+        source = "simulated"
+    return {"cost": cost, "density": density, "tracks": generate_tracks(cost, density, seed),
+            "real_tracks": load_real_tracks(), "source": source}
 
 
 def save_preview(data, path="outputs/figures/simulated_map.png"):
@@ -122,6 +131,8 @@ if __name__ == "__main__":
     cost, tracks = data["cost"], data["tracks"]
     print(f"Source: {data['source']}")
     print(f"Grid: {cost.shape[1]} x {cost.shape[0]} cells, {int(np.isinf(cost).sum())} land cells")
-    print(f"Tracks: {len(tracks)} rows, {tracks['vessel_id'].nunique()} vessels")
+    print(f"Simulated tracks: {len(tracks)} rows, {tracks['vessel_id'].nunique()} vessels")
+    real = data["real_tracks"]
+    print("Real tracks:", "not available" if real is None else f"{len(real)} rows, {real['vessel_id'].nunique()} vessels")
     print(tracks["label"].value_counts().to_string())
     print(f"Preview saved to {save_preview(data)}")

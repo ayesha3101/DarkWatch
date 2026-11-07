@@ -1,0 +1,7 @@
+{
+  "lat_max": 25.0,
+  "lon_min": 65.0,
+  "step_deg": 0.1,
+  "n_rows": 21,
+  "n_cols": 26
+}
