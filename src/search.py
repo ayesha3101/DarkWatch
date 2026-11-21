@@ -81,6 +81,26 @@ class Planner:
     def search(self, start, goal, max_cost=None):
         raise NotImplementedError
 
+    def distances_from(self, start):
+        """Cheapest cost from `start` to EVERY reachable cell (Dijkstra without a goal).
+
+        Returns (dist, parent): dist[cell] is the cost, and following parent links from any
+        cell leads back to start. Used when many routes from the same cell are needed (MCTS).
+        """
+        tie = itertools.count(1)
+        dist, parent, done = {start: 0.0}, {start: None}, set()
+        heap = [(0.0, 0, start)]
+        while heap:
+            g, _, state = heapq.heappop(heap)
+            if state in done:
+                continue
+            done.add(state)
+            for nxt, step in self.neighbors(state):
+                if g + step < dist.get(nxt, math.inf):
+                    dist[nxt], parent[nxt] = g + step, state
+                    heapq.heappush(heap, (g + step, next(tie), nxt))
+        return dist, parent
+
 
 class BFS(Planner):
     """Breadth-first search: expands cells by number of moves, using a FIFO queue.
