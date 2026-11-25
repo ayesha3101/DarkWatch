@@ -1,13 +1,5 @@
-"""Week 2: build the real density and cost grids for our area.
-
-density[y, x]: fishing activity from 0 to 1 (hours, log-scaled so a few very busy
-               cells do not hide all the others).
-cost[y, x]:    1.0 = open water, np.inf = land (from the global-land-mask package).
-Row 0 is the north edge, so y grows southwards. Both grids have the same shape.
-
-Run:  python src/build_grids.py
-Needs data/processed/gfw_cells.csv (made by src/analysis.py).
-"""
+#builds grid from gfw data in gfw_cells.py
+# water = 1 and land = inf log 10 scaled and normalized
 import json
 import sys
 from pathlib import Path

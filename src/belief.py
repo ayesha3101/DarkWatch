@@ -1,17 +1,4 @@
-"""Bayesian belief filter for a hidden boat (Lab 09).
-
-The belief is a probability map p[y, x] over grid cells (it always sums to 1).
-Two steps repeat over time:
-  predict  the transition model: the boat may have moved (drift + spread table),
-  update   the sensor model and Bayes' rule: the patrol looked and either found the
-           boat or found nothing. Finding nothing is evidence too.
-
-Sensor model: if the patrol is at cell P, it detects a boat inside the square of cells
-within `radius` of P with probability `p_detect` (and never outside it).
-Bayes' rule on a miss: new belief of a cell = old belief x P(miss | boat there),
-then divide by the total. P(miss | boat in the square) = 1 - p_detect, and
-P(miss | boat outside) = 1.
-"""
+# bayesian belief using numpy initially give one whole 100% (collapse), then shits, or covoilates using kenrel probabilities
 import numpy as np
 
 DETECT_RADIUS = 1      # cells

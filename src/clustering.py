@@ -1,18 +1,4 @@
-"""Do boats fall into natural movement modes? Unsupervised learning (k-means).
-
-Run:  python src/clustering.py
-
-Uses the same 15-minute window features as the classifier, but NO labels: the numbers are
-standardised (each feature scaled to average 0 and spread 1, so speed in knots does not
-swamp the others) and k-means groups similar windows. We try k = 2 to 6 and keep the k with
-the best silhouette score (how well each window fits its own cluster compared with the next
-nearest one: 1 is perfect, 0 means overlapping, negative means likely mis-grouped).
-Afterwards we look at the real labels to INTERPRET the clusters (adjusted Rand index:
-1 = clusters match the labels exactly, 0 = no better than chance).
-
-k-means parameters: n_clusters = k, n_init = 10 random starts (the best of 10 is kept),
-random_state = 42 so the result can be repeated.
-"""
+# k mean cluster are boats movement falling into same categories (clusters) unsuerpvised)
 import sys
 from pathlib import Path
 

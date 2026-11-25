@@ -1,25 +1,6 @@
-"""Tell fishing boats from other boats by HOW they move (Lab 11).
-
-Rows are 15-minute windows of a track. For every window we work out a few numbers about
-speed and turning (the features). The label (fishing or other) comes from the boat's real
-ship type, but the ship type itself is NEVER a feature.
-
-The split is by BOAT: all windows of a boat are either in train or in test (the same split
-as the movement model, data/processed/boat_split.csv). Splitting by row would leak the answer,
-because windows from one boat look alike.
-
-Models compared on the same split:
-  Naive Bayes    GaussianNB(): assumes each feature is bell-shaped for each class and the
-                 features are independent. var_smoothing=1e-9 (default) only avoids dividing by zero.
-  Decision tree  DecisionTreeClassifier(max_depth=4, min_samples_leaf=5, random_state=42): max_depth and
-                 min_samples_leaf stop it from memorising the training boats.
-  Majority       DummyClassifier("most_frequent"): always answers the most common class. The baseline.
-
-Run:  python src/classifier.py
-"""
+# 3 models, gaussian bayes, decision trees and majority model
 import sys
 from pathlib import Path
-
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -29,9 +10,7 @@ from sklearn.dummy import DummyClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
-
 from movement import TRACKS_FILE, load_or_make_split
-
 FIG_DIR, RESULT_DIR = Path("outputs/figures"), Path("outputs/results")
 WINDOW_MIN = 15
 MIN_POINTS = 10          # a window needs at least this many points with a speed
@@ -62,8 +41,7 @@ def make_windows(tracks):
     return pd.DataFrame(rows).fillna(0.0)
 
 
-def split_windows(windows, split):
-    """Train and test windows, taken from the by-boat split."""
+def split_windows(windows, split): #from boat split .csv
     group = windows["vessel_id"].map(split.set_index("vessel_id")["group"])
     return windows[group == "train"], windows[group == "test"]
 
@@ -75,7 +53,6 @@ def models():
 
 
 def evaluate(train, test):
-    """Fit every model on train and score it on test. Returns (table, confusion matrices, fitted models)."""
     rows, matrices, fitted = [], {}, {}
     for name, model in models().items():
         model.fit(train[FEATURES], train["label"])

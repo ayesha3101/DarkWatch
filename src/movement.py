@@ -1,25 +1,4 @@
-"""Movement model for a boat that has gone dark, learned from real tracks (Lab 09).
-
-What it learns: after AIS stops, where can the boat be one time step later? We
-predict with the boat's last known velocity (constant-velocity drift) and learn the
-RESIDUAL: how far real boats end up from that prediction. The residuals are counted
-into a table of move probabilities, measured in grid cells.
-
-Units: tracks are in degrees; displacements are worked out in km (a flat-earth
-approximation that is fine over a few km), then divided by the cell size.
-Directions: x is east (right), y is south (down), like the grid.
-
-The demo step can be longer than the tracks allow us to measure. The residual is measured
-at `fit_step_minutes` (30 min) and then STRETCHED in proportion to the longer step (growth
-capped at linear, see src/spread_growth.py). That stretch is an assumption, not a measurement.
-
-Assumptions (also in docs/belief-notes.md):
-  - the residual is equally likely in every direction (we symmetrise the table);
-  - the boat keeps its last known velocity on average (no knowledge of turns);
-  - only training boats are used to build the table.
-
-Run:  python src/movement.py     (makes the train/test split and prints the table)
-"""
+# kernels, residuals (predicted - actual),used in belief.py
 import sys
 from pathlib import Path
 
@@ -45,7 +24,6 @@ def to_km(lat, lon, lat0, lon0):
     north = (np.asarray(lat) - lat0) * KM_PER_DEG_LAT
     return east, north
 
-
 def split_boats(tracks, seed=SEED, test_share=0.3):
     """Split boats (not rows) into train and test, keeping both labels in both groups."""
     rng = np.random.default_rng(seed)
@@ -57,7 +35,6 @@ def split_boats(tracks, seed=SEED, test_share=0.3):
         for i, vessel_id in enumerate(ids):
             rows.append({"vessel_id": vessel_id, "label": label, "group": "test" if i < n_test else "train"})
     return pd.DataFrame(rows).sort_values("vessel_id").reset_index(drop=True)
-
 
 def load_or_make_split(tracks, path=SPLIT_FILE):
     """Use the saved split if it matches these boats, otherwise make and save it."""
@@ -71,7 +48,6 @@ def load_or_make_split(tracks, path=SPLIT_FILE):
     path.parent.mkdir(parents=True, exist_ok=True)
     split.to_csv(path, index=False)
     return split
-
 
 def last_velocity(points, lookback=LOOKBACK_MIN):
     """Velocity (east, north in km per minute) from the last `lookback` minutes of a boat's points.
@@ -172,7 +148,6 @@ def default_kernel(radius=5, p_stay=0.83, p_side=0.027, p_diag=0.009):
         kernel[y, x] = rest / len(ring)
     return kernel
 
-
 def load_demo_kernel():
     """Return (kernel, source). Fit on real training fishing boats if possible, otherwise use the fallback."""
     try:
@@ -210,7 +185,6 @@ def main():
     TABLE_FILE.parent.mkdir(parents=True, exist_ok=True)
     table.to_csv(TABLE_FILE, index=False)
     print(f"\nSaved {TABLE_FILE} and {SPLIT_FILE}")
-
 
 if __name__ == "__main__":
     main()

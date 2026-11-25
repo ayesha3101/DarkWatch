@@ -1,22 +1,6 @@
-"""Patrol strategies (Labs 1-3, 5, 9). Every agent answers one question each step:
-"which cell should the patrol head for?". The world then routes the patrol there with A*.
-
-Class tree
-  PatrolAgent            base class (reads only static information: grid, movement table, sensor numbers)
-    RandomPatrol         baseline: a random nearby water cell
-    SweepPatrol          baseline: a fixed lawnmower route over the whole sea
-    LastKnownPatrol      baseline: where each boat was last seen, nearest first
-    BeliefAgent          keeps one belief (probability map) per dark boat
-      GreedyPatrol       goes to the cell with the most belief, ignoring fuel cost
-      BeliefAStarPatrol  our agent: best belief per unit of A* route cost
-      MCTSPatrol         plans a few steps ahead with Monte Carlo tree search over sampled boat positions
-
-Agents never see where a dark boat really is: only the Observation.
-"""
+#one base class other greedy , random ,fixed sweep , a star + 
 import random
-
 import numpy as np
-
 from belief import Belief
 from mcts import MCTS
 from mcts_patrol import PatrolProblem, PathCache, spaced_candidates
@@ -26,9 +10,7 @@ from search import AStar
 def chebyshev(a, b):
     return max(abs(a[0] - b[0]), abs(a[1] - b[1]))
 
-
 def square_mass(mass, radius):
-    """For every cell, the belief inside the (2r+1) x (2r+1) square centred on it."""
     h, w = mass.shape
     padded = np.pad(mass, radius)
     out = np.zeros_like(mass)
@@ -36,7 +18,6 @@ def square_mass(mass, radius):
         for dx in range(2 * radius + 1):
             out += padded[dy:dy + h, dx:dx + w]
     return out
-
 
 class PatrolAgent:
     """Base class. Subclasses override choose_target (and observe if they keep memory)."""

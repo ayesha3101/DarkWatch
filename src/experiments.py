@@ -1,13 +1,3 @@
-"""Run all the experiments with fixed seeds, one command (reproduces the numbers in the report).
-
-Run:  python src/experiments.py                 the main set (a few minutes)
-      python src/experiments.py --all           also the sensitivity test and the MCTS sweep (slow)
-      python src/experiments.py --quick         a tiny version, to check that everything runs
-      python src/experiments.py --only patrols classifier
-
-Every step is a script in src/. Its printout is saved in outputs/logs/ and its tables and charts
-in outputs/results/ and outputs/figures/. A step that fails does not stop the others.
-"""
 import argparse
 import subprocess
 import sys

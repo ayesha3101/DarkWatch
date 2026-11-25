@@ -1,16 +1,4 @@
-"""How fast does the prediction error of a hidden boat grow with time? (Lab 9)
 
-For the TRAINING fishing boats, we predict where each boat will be 5, 10, ... 30 minutes
-after a moment (using its last velocity) and measure how far the real position is from
-that prediction. Then we fit a straight line on a log-log plot: error ~ minutes ^ alpha.
-
-Why: our tracks are only 1.5 to 2 hours long, so we can measure the error up to about
-30 minutes. If the demo uses a longer step, the spread has to be EXTENDED beyond what
-the data shows. This script prints the measured growth and what it would predict at
-longer steps, so the extension is a stated assumption and not a guess.
-
-Run:  python src/spread_growth.py
-"""
 import sys
 
 import numpy as np

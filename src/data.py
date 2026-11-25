@@ -1,12 +1,4 @@
-"""Data loading, and the seeded simulator we use when real data is missing.
-
-Grid convention (agreed between both members):
-    cost[y, x]    2D NumPy array. 1.0 = open water, higher = harder to cross,
-                  np.inf = land (cannot be entered). Every finite cost is >= 1,
-                  which is what makes the A* heuristic admissible.
-    density[y, x] 2D NumPy array in 0..1: how much fishing happens in that cell.
-Tracks are a Pandas table with the columns in TRACK_COLUMNS.
-"""
+#data mapped onto grid using real cost.npy and density.npy if present or siumulated ocean is yused
 import math
 import random
 from pathlib import Path
@@ -17,15 +9,12 @@ PROCESSED_DIR = Path("data/processed")
 TRACK_COLUMNS = ["vessel_id", "step", "x", "y", "speed", "turn", "label"]
 
 def generate_ocean(seed=42, width=40, height=30):
-    """Make a seeded grid ocean. Returns (cost, density)."""
     rng = np.random.default_rng(seed)
     yy, xx = np.mgrid[0:height, 0:width]
-
     cost = np.ones((height, width))
     cost[(yy < 3 + 2 * np.sin(xx / 5.0))] = np.inf                       # coast along the top
     cost[(xx - 0.7 * width) ** 2 + (yy - 0.6 * height) ** 2 < 9] = np.inf  # an island
     cost[(xx >= 5) & (xx < 12) & (yy >= 15) & (yy < 22)] = 3.0             # slow, restricted zone
-
     density = np.zeros((height, width))
     for _ in range(4):
         cx, cy = rng.uniform(4, width - 4), rng.uniform(6, height - 4)
@@ -60,8 +49,7 @@ def generate_tracks(cost, density, seed=42, n_vessels=40, n_steps=120):
     return pd.DataFrame(rows, columns=TRACK_COLUMNS)
 
 
-def _start_position(rng, cost, density, label, tries=1000):
-    """Pick a water cell; fishing boats prefer busy fishing areas."""
+def _start_position(rng, cost, density, label, tries=1000):#where should the vessel start from
     height, width = cost.shape
     for _ in range(tries):
         x, y = rng.uniform(0, width), rng.uniform(0, height)
@@ -72,23 +60,13 @@ def _start_position(rng, cost, density, label, tries=1000):
     raise RuntimeError("Could not find a start position in water.")
 
 
-def load_real_tracks():
-    """Load the cleaned Danish tracks if they exist, otherwise return None."""
+def load_real_tracks(): #mimic actual vessel trajcetories using data manipulation on dma datset
     try:
         return pd.read_csv(PROCESSED_DIR / "tracks_clean.csv", parse_dates=["time"])
     except (FileNotFoundError, pd.errors.EmptyDataError, ValueError):
         return None
 
-
-def load_data(seed=42):
-    """Load the real grids if both files exist, otherwise use the simulator.
-
-    Returns a dict with:
-      cost, density  the grids (real or simulated)
-      tracks         simulated boat tracks on the grid, used by the demo
-      real_tracks    cleaned Danish tracks (lat/lon, speed, turning, label) or None
-      source         'real' or 'simulated' (this describes the grids)
-    """
+def load_data(seed=42): #generate the map using real data if cost .py and density .npy are present else mimic using generate ocean
     try:
         cost = np.load(PROCESSED_DIR / "cost.npy")
         density = np.load(PROCESSED_DIR / "density.npy")
@@ -103,12 +81,10 @@ def load_data(seed=42):
             "real_tracks": load_real_tracks(), "source": source}
 
 
-def save_preview(data, path="outputs/figures/simulated_map.png"):
-    """Save a picture of the density map, land and a few tracks."""
+def save_preview(data, path="outputs/figures/simulated_map.png"):# save the simulated map
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-
     shown = np.ma.masked_where(np.isinf(data["cost"]), data["density"])
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_facecolor("#444444")

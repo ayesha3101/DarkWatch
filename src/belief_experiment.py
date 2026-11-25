@@ -1,21 +1,4 @@
-"""Test the belief filter on real tracks: hide part of a track and compare (Lab 09).
-
-For each TEST fishing boat and many start times, we pretend AIS stopped at that moment.
-The belief starts at the last seen position, drifts with the last known velocity, and
-spreads with the movement table learned from the TRAINING boats. We then compare with
-the real position 5, 10, ... 30 minutes later.
-
-Compared:
-  last seen        the raw signal: assume the boat has not moved
-  constant speed   last seen + last velocity x time (a simple prediction, no probabilities)
-  belief           the filter's average position (it equals the constant-speed point,
-                   because the spread table is symmetric)
-  coverage / area  the real position inside the smallest set of cells holding 90% of the
-                   belief, and how many km2 that set covers. The "no drift" belief spreads
-                   the same way but forgets the last velocity.
-
-Run:  python src/belief_experiment.py
-"""
+#test belief model on real data
 import sys
 from pathlib import Path
 

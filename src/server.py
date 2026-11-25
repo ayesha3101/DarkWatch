@@ -1,23 +1,13 @@
-"""Local web server for the DarkWatch page. It only listens on this computer (127.0.0.1).
-
-Run:  python src/server.py          then open  http://127.0.0.1:5000
-      python src/server.py --port 8000
-
-The page asks this server to run an episode in Python (agent + seed) and draws the replay it gets back.
-All the thinking happens here; the page only draws. Nothing is put on the internet.
-"""
+"""Local web server for the DarkWatch page. """
 import argparse
 import threading
 from functools import lru_cache
 from pathlib import Path
-
 from flask import Flask, jsonify, request, send_from_directory
-
 from agents import ALL_AGENTS
 from data import load_data
 from movement import load_demo_kernel
 from replay import find_agent, record_episode
-
 WEB_DIR = Path(__file__).resolve().parent / "web"
 MAX_SEED = 9_999_999
 

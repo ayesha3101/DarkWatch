@@ -1,13 +1,4 @@
-"""One belief update on a 3 x 3 grid, with every number shown, for the hand trace (Lab 09).
-
-Run:  python src/belief_demo.py
-Trace it on paper first, then compare.
-
-Setup: the boat was last seen in the middle cell. In one step it stays with
-probability 0.6 or moves to one of the 4 side neighbours with probability 0.1 each.
-Then the patrol searches the left-middle cell (radius 0, so only that cell) with
-detection probability 0.9 and finds nothing.
-"""
+#just a demo run to see if our algos work
 import numpy as np
 
 from belief import Belief
