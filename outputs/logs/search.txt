@@ -1,0 +1,15 @@
+Seed 42. Maps with no path (left out of the averages): 1. Maps where no start/goal pair was found: 0
+
+                     nodes_expanded   cost  moves  frontier_peak  maps
+group       planner                                                   
+random maps BFS              609.25  37.17  25.75          53.50     4
+            UCS              640.00  32.34  26.75          72.50     4
+            A*               203.00  32.34  26.75          74.25     4
+real map    BFS              304.90  16.08  14.30          37.00    10
+            UCS              314.30  16.08  14.30          49.30    10
+            A*                46.90  16.08  14.30          50.00    10
+
+A* cost differs from UCS on 0 of 14 maps (should be 0).
+BFS path is more expensive than UCS on 3 of 14 maps.
+
+Saved outputs\results\search_comparison.csv and 2 charts in outputs\figures/

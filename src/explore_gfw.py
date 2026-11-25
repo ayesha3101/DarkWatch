@@ -1,13 +1,8 @@
-"""Day 2: test the Global Fishing Watch API with one small query.
-
-Saves the raw answer to data/raw/ and prints its structure, so we can
-write down exactly what GFW returns. Needs the GFW_TOKEN environment variable.
-"""
+#gfw api, token stored in env var, returns json
 import json
 import os
 import sys
 from pathlib import Path
-
 import requests
 
 URL = "https://gateway.api.globalfishingwatch.org/v3/4wings/report"
@@ -29,26 +24,22 @@ PARAMS = {
     "group-by": "FLAG",
 }
 
-
 def get_token():
-    """Read the API token from the environment, never from the code."""
+    #read api token from env variable
     token = os.environ.get("GFW_TOKEN")
     if not token:
         sys.exit("GFW_TOKEN is not set. Set it first (see the steps), then run again.")
     return token
 
-
-def fetch_report(token):
-    """Send one report request and return the parsed JSON answer."""
+def fetch_report(token): #fetch the json response
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     response = requests.post(URL, params=PARAMS, headers=headers,
                              json={"geojson": REGION}, timeout=60)
     response.raise_for_status()
     return response.json()
 
-
 def describe(obj, indent=0, max_depth=4):
-    """Print the shape of the JSON: keys, types and sizes."""
+    #print json key, values and types
     pad = "  " * indent
     if isinstance(obj, dict):
         for key, value in list(obj.items())[:10]:
@@ -59,7 +50,6 @@ def describe(obj, indent=0, max_depth=4):
     elif isinstance(obj, list) and obj:
         print(f"{pad}[list of {len(obj)}] first item:")
         describe(obj[0], indent + 1, max_depth)
-
 
 def main():
     token = get_token()
@@ -80,7 +70,6 @@ def main():
     RAW_FILE.write_text(json.dumps(data, indent=2))
     print(f"Saved raw answer to {RAW_FILE} ({RAW_FILE.stat().st_size / 1024:.1f} KB)\n")
     describe(data)
-
 
 if __name__ == "__main__":
     main()

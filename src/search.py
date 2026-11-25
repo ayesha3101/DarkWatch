@@ -12,12 +12,9 @@ import itertools
 import math
 from collections import deque
 from dataclasses import dataclass, field
-
 import numpy as np
-
 SQRT2 = math.sqrt(2.0)
 MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
-
 
 @dataclass
 class SearchResult:

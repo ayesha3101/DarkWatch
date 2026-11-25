@@ -1,11 +1,4 @@
-"""Week 2 (Lab 10): exploratory analysis of the Global Fishing Watch fishing-activity data.
-
-Loads the raw GFW answer, cleans it, adds up hours per map cell, prints the
-findings we need to write down, and saves three charts.
-
-Run:  python src/analysis.py
-Needs data/raw/gfw_sample.json (made by src/explore_gfw.py).
-"""
+# eda of gfw dataset clean and add fishing hours for same cells and save to csv
 import json
 import sys
 from pathlib import Path
@@ -23,8 +16,7 @@ GREEN = "#2e8b57"
 REQUIRED = ["lat", "lon", "hours"]
 
 
-def load_gfw(path=RAW_FILE):
-    """Read the GFW JSON answer into a table with one row per cell and flag."""
+def load_gfw(path=RAW_FILE): #load the .json file
     raw = json.loads(Path(path).read_text())
     rows = []
     for entry in raw["entries"]:
@@ -38,7 +30,6 @@ def load_gfw(path=RAW_FILE):
 
 
 def clean_gfw(table):
-    """Drop unusable rows and name the empty flags. Returns (clean table, log)."""
     log = {"rows at start": len(table)}
     table = table.dropna(subset=REQUIRED)
     log["after dropping missing lat/lon/hours"] = len(table)
@@ -54,13 +45,11 @@ def clean_gfw(table):
 
 
 def cell_totals(table):
-    """Add up hours per map cell (a cell has one row per flag in the raw data)."""
     return table.groupby(["lat", "lon"], as_index=False).agg(
         hours=("hours", "sum"), vessels=("vesselIDs", "sum"), flags=("flag", "nunique"))
 
 
 def print_findings(table, cells, log):
-    """Print the numbers to copy into the written findings."""
     print("Cleaning log:")
     for step, rows in log.items():
         print(f"  {step}: {rows:,}")
@@ -90,7 +79,6 @@ def print_findings(table, cells, log):
 
 
 def make_charts(table, cells):
-    """Save three charts: hours per cell, hours by flag, and a cell map."""
     FIG_DIR.mkdir(parents=True, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(7, 4))

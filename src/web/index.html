@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DarkWatch: patrol planning for hidden vessels</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="none" stroke="#2e8b57" stroke-width="1.6" opacity=".5"/>
+        <circle cx="20" cy="20" r="11" fill="none" stroke="#5fd39a" stroke-width="1.6" stroke-dasharray="3 4"/>
+        <path d="M20 9 L26 27 L20 23 L14 27 Z" fill="#5fd39a"/>
+      </svg>
+      <div>
+        <h1>DarkWatch</h1>
+        <p>Where should a patrol go when the boats it hunts have gone dark?</p>
+      </div>
+    </div>
+    <div class="controls">
+      <label class="field"><span>Strategy</span><select id="agent" aria-label="Strategy"></select></label>
+      <label class="field"><span>Seed</span>
+        <span class="seedbox"><input id="seed" type="number" min="0" max="9999999" value="42" aria-label="Seed">
+          <button id="dice" class="icon" type="button" title="Random seed" aria-label="Random seed">
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9" r="1.4" fill="currentColor"/><circle cx="15" cy="15" r="1.4" fill="currentColor"/><circle cx="15" cy="9" r="1.4" fill="currentColor"/><circle cx="9" cy="15" r="1.4" fill="currentColor"/></svg>
+          </button></span></label>
+      <button id="run" class="btn primary" type="button">Run</button>
+      <button id="compare" class="btn" type="button">Compare all</button>
+      <label class="btn file" title="Open a replay file made by python src/replay.py">Open file<input id="file" type="file" accept=".json,application/json" multiple hidden></label>
+      <span id="mapbadge" class="badge" hidden></span>
+      <button id="help" class="icon round" type="button" title="How to read this (H)" aria-label="How to read this">?</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" role="alert" hidden></div>
+
+  <main class="layout">
+    <section class="stage">
+      <div class="canvas-wrap" id="wrap">
+        <canvas id="map" aria-label="Map of the sea with the patrol and the boats"></canvas>
+        <div class="hud" id="hud" hidden><b id="hudStep">Step 0</b><span id="hudTime">0 h</span></div>
+        <div class="tooltip" id="tip" hidden></div>
+
+        <div class="overlay" id="empty">
+          <div class="empty-card">
+            <h2>Nothing to show yet</h2>
+            <p id="emptyText">Start the server with <code>python src/server.py</code>, or drop a replay file here. Make one with <code>python src/replay.py</code>.</p>
+          </div>
+        </div>
+        <div class="overlay" id="loading" hidden><div class="spinner" aria-hidden="true"></div><p id="loadingText">Running in Python…</p></div>
+        <div class="overlay" id="done" hidden>
+          <div class="empty-card">
+            <h2>Episode complete</h2>
+            <p id="doneText"></p>
+            <button id="again" class="btn primary" type="button">Watch again</button>
+          </div>
+        </div>
+        <div class="drop" id="drop" hidden>Drop a replay file to open it</div>
+      </div>
+
+      <div class="transport">
+        <button id="prev" class="icon" type="button" title="Back one step (←)" aria-label="Back one step"><svg viewBox="0 0 24 24"><path d="M15 5 L7 12 L15 19 Z" fill="currentColor"/></svg></button>
+        <button id="play" class="icon big" type="button" title="Play / pause (space)" aria-label="Play or pause"><svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5 L19 12 L8 19 Z" fill="currentColor"/></svg></button>
+        <button id="next" class="icon" type="button" title="Forward one step (→)" aria-label="Forward one step"><svg viewBox="0 0 24 24"><path d="M9 5 L17 12 L9 19 Z" fill="currentColor"/></svg></button>
+        <div class="scrub"><div class="ticks" id="ticks"></div><input id="scrub" type="range" min="0" max="0" step="0.001" value="0" aria-label="Timeline"></div>
+        <label class="speed"><select id="speed" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+      </div>
+
+      <div class="chips" id="chips">
+        <button class="chip" type="button" data-opt="belief" aria-pressed="true" title="B"><i class="sw glow"></i>Where boats might be</button>
+        <button class="chip" type="button" data-opt="density" aria-pressed="true"><i class="sw heat"></i>Fishing activity</button>
+        <button class="chip" type="button" data-opt="trails" aria-pressed="true" title="T"><i class="sw trail"></i>Trails</button>
+        <button class="chip" type="button" data-opt="why" aria-pressed="false" title="W"><i class="sw why"></i>Why this route?</button>
+        <button class="chip" type="button" data-opt="truth" aria-pressed="false" title="G"><i class="sw truth"></i>Show hidden boats</button>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="card" id="missionCard">
+        <h2>Mission</h2>
+        <div class="stats">
+          <div><span class="k">Found</span><b id="sFound">0</b><small id="sFoundOf"></small></div>
+          <div><span class="k">Dark now</span><b id="sDark">0</b><small>still hidden</small></div>
+          <div><span class="k">Time</span><b id="sTime">0 h</b><small id="sStep">step 0</small></div>
+          <div><span class="k">Per 100 fuel</span><b id="sRate">0.0</b><small>boats found</small></div>
+        </div>
+        <div class="fuel"><div class="fuel-top"><span class="k">Fuel</span><span id="fuelText" class="mono"></span></div><div class="bar"><i id="fuelBar"></i></div></div>
+      </section>
+
+      <section class="card" id="storyCard">
+        <h2>What is happening</h2>
+        <p id="story" class="story"></p>
+        <p id="how" class="how"></p>
+      </section>
+
+      <section class="card" id="whyCard">
+        <h2>Why this route?</h2>
+        <p id="whyText" class="muted small"></p>
+        <ol id="whyList" class="why-list"></ol>
+      </section>
+
+      <section class="card" id="compareCard" hidden>
+        <h2>Same boats, different strategies</h2>
+        <ul id="compareList" class="compare"></ul>
+        <p class="muted small">One episode only. Averages over 100 episodes are in the report.</p>
+      </section>
+
+      <section class="card">
+        <h2>Timeline</h2>
+        <ul id="events" class="events"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <div class="modal" id="legend" role="dialog" aria-modal="true" aria-labelledby="legendTitle" hidden>
+    <div class="modal-card">
+      <h2 id="legendTitle">How to read this</h2>
+      <p class="muted">Some fishing boats switch off their tracking (AIS). A patrol with limited fuel has to decide where to look.</p>
+      <ul class="legend">
+        <li><i class="sw glow big"></i><div><b>Green glow</b> is the patrol's belief: where a hidden boat might be. It spreads as time passes and shrinks when a search finds nothing.</div></li>
+        <li><i class="sw dot"></i><div><b>White dot</b> is a boat that still broadcasts AIS, so the patrol knows where it is.</div></li>
+        <li><i class="sw lastseen"></i><div><b>Dashed ring</b> is the last place a boat was seen before it went dark.</div></li>
+        <li><i class="sw ship"></i><div><b>Green arrow</b> is the patrol. The ring around it is its fuel, and the dashed square is what its sensor can see.</div></li>
+        <li><i class="sw found"></i><div><b>Tick</b> marks a boat the patrol found.</div></li>
+        <li><i class="sw heat"></i><div><b>Dark green tiles</b> show where fishing is common (real data). Grey blocks are land.</div></li>
+      </ul>
+      <p class="muted small">Keys: <kbd>Space</kbd> play or pause, <kbd>←</kbd> <kbd>→</kbd> step, <kbd>B</kbd> glow, <kbd>W</kbd> why this route, <kbd>G</kbd> hidden boats, <kbd>T</kbd> trails, <kbd>H</kbd> this help.</p>
+      <button id="closeLegend" class="btn primary" type="button">Got it</button>
+    </div>
+  </div>
+
+  <script src="render.js"></script>
+  <script src="data/replays.js" onerror="void 0"></script>
+  <script src="app.js"></script>
+</body>
+</html>

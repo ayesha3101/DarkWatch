@@ -1,0 +1,7 @@
+step,status,seconds,log
+movement,ok,3.2,outputs\logs\movement.txt
+search,ok,4.8,outputs\logs\search.txt
+belief,ok,13.2,outputs\logs\belief.txt
+classifier,ok,14.4,outputs\logs\classifier.txt
+clustering,ok,8.4,outputs\logs\clustering.txt
+patrols,ok,11.5,outputs\logs\patrols.txt

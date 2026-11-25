@@ -1,10 +1,4 @@
-"""Show BFS, UCS and A* on the 5 x 5 example, for the hand trace (Labs 04-05).
-
-Run:  python src/search_demo.py
-Trace A* on paper first, then compare with the expansion order printed here.
-Ties in priority are broken by the order cells were added to the frontier.
-Neighbour order: right, left, down, up, then the four diagonals.
-"""
+#search demo (bfs, ucs and A star)
 import numpy as np
 
 from search import AStar, BFS, UCS
@@ -16,8 +10,6 @@ GRID = np.array([[1, INF, 1, 1, 1],
                  [1, INF, 1, INF, 1],
                  [INF, 1, 1, 1, 1]], dtype=float)
 START, GOAL = (0, 0), (4, 4)
-
-
 def show_grid():
     print("Cost grid (# = land, S = start, G = goal). x goes right, y goes down.")
     for y in range(GRID.shape[0]):

@@ -10,13 +10,11 @@ Tracks are a Pandas table with the columns in TRACK_COLUMNS.
 import math
 import random
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
 PROCESSED_DIR = Path("data/processed")
 TRACK_COLUMNS = ["vessel_id", "step", "x", "y", "speed", "turn", "label"]
-
 
 def generate_ocean(seed=42, width=40, height=30):
     """Make a seeded grid ocean. Returns (cost, density)."""

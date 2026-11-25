@@ -1,0 +1,13 @@
+metric,strategy,mean_difference,ci95_low,ci95_high,episodes_better,episodes_worse,episodes_tied
+boats found per 100 fuel,Belief + A*,-0.523,-4.206,3.16,2,3,0
+boats found per 100 fuel,Fixed sweep,-3.462,-4.53,-2.394,0,5,0
+boats found per 100 fuel,Greedy belief,-1.817,-4.241,0.607,1,4,0
+boats found per 100 fuel,Random,-4.062,-5.023,-3.101,0,5,0
+boats found,Belief + A*,-0.2,-2.632,2.232,2,2,1
+boats found,Fixed sweep,-2.0,-3.24,-0.76,0,4,1
+boats found,Greedy belief,-0.8,-2.893,1.293,1,3,1
+boats found,Random,-2.6,-3.384,-1.816,0,5,0
+boats found by fuel 50,Belief + A*,1.0,0.123,1.877,3,0,2
+boats found by fuel 50,Fixed sweep,-2.2,-2.933,-1.467,0,5,0
+boats found by fuel 50,Greedy belief,-0.4,-1.867,1.067,2,2,1
+boats found by fuel 50,Random,-1.8,-2.76,-0.84,0,5,0

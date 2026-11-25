@@ -1,0 +1,27 @@
+Windows: 405 train from 70 boats, 192 test from 30 boats. Features: mean_speed, std_speed, median_speed, max_speed, share_stopped, mean_abs_turn, std_turn, mean_speed_change
+Fishing share of test windows: 0.47
+
+                    model  window_accuracy  window_f1_fishing  boat_accuracy
+              Naive Bayes            0.833              0.824          0.767
+            Decision tree            0.849              0.845          0.800
+Always the majority class            0.526              0.000          0.567
+
+Naive Bayes (rows = real, columns = predicted; order ['fishing', 'other']):
+[[75 16]
+ [16 85]]
+
+Decision tree (rows = real, columns = predicted; order ['fishing', 'other']):
+[[79 12]
+ [17 84]]
+
+Always the majority class (rows = real, columns = predicted; order ['fishing', 'other']):
+[[  0  91]
+ [  0 101]]
+
+What the decision tree used most:
+mean_speed       0.783
+median_speed     0.205
+max_speed        0.010
+mean_abs_turn    0.002
+
+Saved outputs\results\classifier_results.csv and outputs\figures\classifier_confusion.png

@@ -1,0 +1,6 @@
+agent,found,found_share,fuel_used,found_per_100_fuel,std_error,found_by_25,found_by_50,found_by_75,found_by_100
+Random,1.2,0.207,100.0,1.2,0.49,0.4,0.4,0.4,1.2
+Fixed sweep,1.8,0.333,100.0,1.8,0.374,0.0,0.0,0.2,1.8
+Last known position,3.8,0.633,71.997,5.262,0.187,1.0,2.2,3.4,3.8
+Greedy belief,3.0,0.527,94.591,3.445,1.251,1.0,1.8,2.8,3.0
+Belief + A*,3.6,0.6,90.261,4.739,1.877,1.6,3.2,3.6,3.6

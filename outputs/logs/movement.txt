@@ -1,0 +1,23 @@
+Boats per group (split by boat, seed 42):
+label  fishing  other
+group                
+test        13     17
+train       30     41
+
+Demo model: step 120 min, cell 11.1 km, trained on 29 training fishing boats, 1,861 samples
+Spread measured at 30 min and stretched x4 to the demo step (an assumption)
+Probability of staying in the same cell: 0.826
+Share of residuals outside the table (clipped to its edge): 0.000%
+
+Most likely moves (dx cells east, dy cells south):
+ dx  dy  probability
+  0   0       0.8259
+  1   0       0.0271
+ -1   0       0.0271
+  0  -1       0.0271
+  0   1       0.0271
+ -1  -1       0.0091
+ -1   1       0.0091
+  1  -1       0.0091
+
+Saved outputs\results\movement_table.csv and data\processed\boat_split.csv

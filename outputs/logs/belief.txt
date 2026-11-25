@@ -1,0 +1,13 @@
+Movement table: step 5 min, cell 1.0 km, 30 training boats, 2,414 samples, chance of staying 0.98
+Test boats: 12, blackout episodes: 169
+
+ minutes  last_seen_km  constant_speed_km  belief_km  coverage90_drift  area90_drift_km2  coverage90_nodrift  area90_nodrift_km2
+       5         0.714              0.069      0.069             0.997             2.799               0.501                 1.0
+      10         1.415              0.160      0.160             0.994             4.793               0.093                 1.0
+      15         2.098              0.265      0.265             0.968             6.739               0.007                 1.0
+      20         2.745              0.414      0.414             0.932             8.891               0.002                 1.0
+      25         3.362              0.591      0.591             0.890            11.145               0.014                 2.0
+      30         3.940              0.805      0.805             0.873            13.485               0.002                 2.0
+
+After 30 minutes the average error is 3.94 km for the last seen position and 0.81 km for the belief.
+Saved outputs\results\belief_vs_last_seen.csv and outputs\figures\belief_error_vs_minutes.png
