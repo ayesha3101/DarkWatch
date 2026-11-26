@@ -1,36 +1,17 @@
-"""Monte Carlo tree search, written from scratch (Lab 8).
-
-This file is the general algorithm. It knows nothing about boats: it only talks to a
-`problem` object (see src/mcts_patrol.py for ours). The four steps of every simulation:
-
-  1 Selection      walk down the tree, always taking the child with the best UCT score
-  2 Expansion      at the first node with an untried action, try it and add the new node
-  3 Simulation     from that new node, play on with a cheap default policy (the rollout)
-  4 Backpropagation  add the total reward to every node on the way back up
-
-UCT score of a child = (average return) / scale + c * sqrt(ln(parent visits) / child visits)
-  - the first part favours actions that did well (exploitation),
-  - the second favours actions tried few times (exploration),
-  - scale is the biggest return seen so far, so returns of any size give a score near 0 to 1,
-  - c is how much we explore. We use c = 1.0.
-Depth limit: the tree is grown max_depth levels deep, then the rollout takes over.
-The best action is the most visited child at the root (more robust than the best average).
-
-What a `problem` must provide:
-  actions(state)                      the actions available in a public state (a list)
-  is_terminal(state)                  True when nothing more can happen
-  sample_world(rng)                   hidden information for ONE simulation (may be None)
-  step(state, action, world, rng)     returns (new_state, reward). The public part of the new
-                                      state must not depend on the hidden world.
-  rollout(state, world, rng)          total reward of the default policy from state
-"""
+# mcts from scratch, handles the general search process
+# repeats 4 steps: selection, expansion, simulation and backpropagation
+# selection picks a promising branch using uct
+# expansion adds a new action to the search tree
+# simulation runs a short random rollout to estimate reward
+# backpropagation updates reward and visit counts
+# uct balances trying good actions and exploring new ones
+# tree grows up to max_depth, then rollout takes over
+# final action is the most visited child of the root
+# problem object provides patrol actions, states and rewards
 import math
 import random
 
-
 class Node:
-    """One public state in the tree, with the statistics of how good it has been."""
-
     __slots__ = ("state", "untried", "children", "visits", "total")
 
     def __init__(self, state, actions):

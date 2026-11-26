@@ -1,4 +1,4 @@
-"""Local web server for the DarkWatch page. """
+#web server
 import argparse
 import threading
 from functools import lru_cache
@@ -13,7 +13,6 @@ MAX_SEED = 9_999_999
 
 
 def create_app(data=None, kernel=None):
-    """Make the Flask app. `data` and `kernel` can be given (tests do); otherwise they are loaded once."""
     if data is None:
         data = load_data()
     if kernel is None:

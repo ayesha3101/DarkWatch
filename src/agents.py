@@ -6,11 +6,10 @@ from mcts import MCTS
 from mcts_patrol import PatrolProblem, PathCache, spaced_candidates
 from search import AStar
 
-
-def chebyshev(a, b):
+def chebyshev(a, b): #calculates idtsnace btw 2 grids and picks mx
     return max(abs(a[0] - b[0]), abs(a[1] - b[1]))
 
-def square_mass(mass, radius):
+def square_mass(mass, radius): #adds probabilities of neighbouring cells includes centre cells
     h, w = mass.shape
     padded = np.pad(mass, radius)
     out = np.zeros_like(mass)
@@ -20,8 +19,7 @@ def square_mass(mass, radius):
     return out
 
 class PatrolAgent:
-    """Base class. Subclasses override choose_target (and observe if they keep memory)."""
-
+   #base class only 
     name = "PatrolAgent"
 
     def __init__(self, world, rng=None):
@@ -36,7 +34,7 @@ class PatrolAgent:
         """Look at the new observation (update memory). Default: nothing to remember."""
 
     def choose_target(self, obs):
-        """Return the (x, y) cell to head for, or None to stay."""
+        #whcih cell to move
         raise NotImplementedError
 
 
@@ -48,11 +46,11 @@ class RandomPatrol(PatrolAgent):
         super().__init__(world, rng)
         self.target = None
 
-    def observe(self, obs):
+    def observe(self, obs): #ager target current grid hai so turn target to null and calc again
         if self.target == obs.patrol_cell:
             self.target = None
 
-    def choose_target(self, obs):
+    def choose_target(self, obs):  #random targetssss
         if self.target is None:
             x, y = obs.patrol_cell
             h, w = self.water.shape
@@ -64,9 +62,7 @@ class RandomPatrol(PatrolAgent):
 
 
 class SweepPatrol(PatrolAgent):
-    """Fixed lawnmower route: rows 3 cells apart (the width of the sensor square), alternating direction."""
-
-    name = "Fixed sweep"
+    name = "Fixed sweep"  #name of the patrol type
 
     def __init__(self, world, rng=None):
         super().__init__(world, rng)
@@ -78,7 +74,7 @@ class SweepPatrol(PatrolAgent):
             self.waypoints += [(x, y) for x in (xs if i % 2 == 0 else xs[::-1])]
         self.index, self.stuck, self.last_cell = 0, 0, None
 
-    def observe(self, obs):
+    def observe(self, obs): #if no way to move
         if not self.waypoints:
             return
         self.stuck = self.stuck + 1 if obs.patrol_cell == self.last_cell else 0
@@ -91,8 +87,6 @@ class SweepPatrol(PatrolAgent):
 
 
 class LastKnownPatrol(PatrolAgent):
-    """Go to where each boat was last seen (nearest first). Gives up on a spot once it has looked there."""
-
     name = "Last known position"
 
     def __init__(self, world, rng=None):
@@ -116,10 +110,7 @@ class LastKnownPatrol(PatrolAgent):
         px, py = obs.patrol_cell
         return min(self.targets.values(), key=lambda c: (c[0] - px) ** 2 + (c[1] - py) ** 2)
 
-
 class BeliefAgent(PatrolAgent):
-    """Keeps one belief per dark boat: predict every step, then Bayes update with what the sensor saw."""
-
     name = "BeliefAgent"
 
     def __init__(self, world, rng=None):

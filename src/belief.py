@@ -38,8 +38,6 @@ def convolve(p, kernel):
 
 
 class Belief:
-    """Probability map of one hidden boat. Cells are (x, y); the map is indexed p[y, x]."""
-
     def __init__(self, shape, cell, water=None):
         self.water = np.ones(shape, dtype=bool) if water is None else np.asarray(water, dtype=bool)
         self.p = np.zeros(shape)
@@ -47,7 +45,6 @@ class Belief:
         self.collapse(cell)
 
     def collapse(self, cell):
-        """We know exactly where the boat is."""
         if not (0 <= cell[0] < self.p.shape[1] and 0 <= cell[1] < self.p.shape[0]):
             raise ValueError(f"cell {cell} is outside the {self.p.shape[1]} x {self.p.shape[0]} grid")
         self.p[:] = 0.0
@@ -63,12 +60,10 @@ class Belief:
             self.p = self.p / total
 
     def predict(self, kernel, drift=(0.0, 0.0)):
-        """Transition step: move the map by the drift (cells), then spread it with the kernel."""
         self.p = convolve(shift(self.p, *drift), kernel) * self.water
         self._normalise()
 
     def update(self, patrol_cell, detected=False, boat_cell=None, radius=DETECT_RADIUS, p_detect=DETECT_PROB):
-        """Sensor step. If detected, the boat's cell is known. If not, lower the belief in the searched square."""
         if detected:
             if boat_cell is None:
                 raise ValueError("boat_cell is needed when the boat was detected")

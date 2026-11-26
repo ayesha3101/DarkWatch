@@ -1,7 +1,6 @@
-# k mean cluster are boats movement falling into same categories (clusters) unsuerpvised)
+# k mean cluster are boats movement falling into same categories (clusters) unsuerpvised) 6 categories fast straight, stationary, 
 import sys
 from pathlib import Path
-
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -11,22 +10,17 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
-
 from classifier import FEATURES, make_windows
 from movement import TRACKS_FILE
-
 FIG_DIR, RESULT_DIR = Path("outputs/figures"), Path("outputs/results")
 SEED, KS = 42, range(2, 7)
 SHADES = ["#2e8b57", "#111111", "#9bd0b0", "#777777", "#0d4d2a", "#cccccc"]
 
 
-def scale(windows):
-    """Standardise the movement features."""
+def scale(windows):# standard scaler
     return StandardScaler().fit_transform(windows[FEATURES])
 
-
-def choose_k(x, ks=KS):
-    """Try k-means for each k. Returns (table with silhouette scores, best k)."""
+def choose_k(x, ks=KS):#which k to chose (2-6) ko test kerta hai we chose 5
     rows = []
     for k in ks:
         model = KMeans(n_clusters=k, n_init=10, random_state=SEED).fit(x)
@@ -34,9 +28,7 @@ def choose_k(x, ks=KS):
     table = pd.DataFrame(rows)
     return table.round(3), int(table.loc[table["silhouette"].idxmax(), "k"])
 
-
 def profile(windows, clusters):
-    """What each cluster looks like: size, typical movement, and (for interpretation only) the share of fishing windows."""
     frame = windows.assign(cluster=clusters)
     out = frame.groupby("cluster").agg(windows=("label", "size"), boats=("vessel_id", "nunique"),
                                        mean_speed=("mean_speed", "mean"), share_stopped=("share_stopped", "mean"),

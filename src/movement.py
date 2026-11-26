@@ -1,7 +1,6 @@
 # kernels, residuals (predicted - actual),used in belief.py
 import sys
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
@@ -18,14 +17,12 @@ SPLIT_FILE = Path("data/processed/boat_split.csv")
 TABLE_FILE = Path("outputs/results/movement_table.csv")
 
 
-def to_km(lat, lon, lat0, lon0):
-    """East and north offsets in km of (lat, lon) from the point (lat0, lon0)."""
+def to_km(lat, lon, lat0, lon0):# calc distance from long and lat and covert into kilometeres
     east = (np.asarray(lon) - lon0) * KM_PER_DEG_LON_AT_EQUATOR * np.cos(np.radians(lat0))
     north = (np.asarray(lat) - lat0) * KM_PER_DEG_LAT
     return east, north
 
-def split_boats(tracks, seed=SEED, test_share=0.3):
-    """Split boats (not rows) into train and test, keeping both labels in both groups."""
+def split_boats(tracks, seed=SEED, test_share=0.3):# train test split keep equal labels in bot groups
     rng = np.random.default_rng(seed)
     boats = tracks.groupby("vessel_id")["label"].first().sort_index()
     rows = []
@@ -37,7 +34,6 @@ def split_boats(tracks, seed=SEED, test_share=0.3):
     return pd.DataFrame(rows).sort_values("vessel_id").reset_index(drop=True)
 
 def load_or_make_split(tracks, path=SPLIT_FILE):
-    """Use the saved split if it matches these boats, otherwise make and save it."""
     try:
         saved = pd.read_csv(path)
         if set(saved["vessel_id"]) == set(tracks["vessel_id"]):
@@ -49,12 +45,7 @@ def load_or_make_split(tracks, path=SPLIT_FILE):
     split.to_csv(path, index=False)
     return split
 
-def last_velocity(points, lookback=LOOKBACK_MIN):
-    """Velocity (east, north in km per minute) from the last `lookback` minutes of a boat's points.
-
-    `points` has a datetime `time` column plus lat and lon, sorted by time.
-    Returns (0, 0) if there is no point exactly `lookback` minutes before the last one.
-    """
+def last_velocity(points, lookback=LOOKBACK_MIN): #calc velocity using last known position
     indexed = points.set_index("time")[["lat", "lon"]]
     last_time = indexed.index[-1]
     earlier = last_time - pd.Timedelta(minutes=lookback)
@@ -66,7 +57,6 @@ def last_velocity(points, lookback=LOOKBACK_MIN):
 
 
 def residuals(tracks, step_minutes, lookback=LOOKBACK_MIN):
-    """Residual (km) of the position `step_minutes` later versus the constant-velocity prediction."""
     parts = []
     for vessel_id, group in tracks.groupby("vessel_id"):
         g = group.drop_duplicates("time").set_index("time").sort_index()[["lat", "lon"]]
@@ -86,9 +76,7 @@ def residuals(tracks, step_minutes, lookback=LOOKBACK_MIN):
     return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=["vessel_id", "res_east", "res_north"])
 
 
-class MovementModel:
-    """Table of move probabilities: P(boat is (dx, dy) cells from its predicted position)."""
-
+class MovementModel: #custom probailites model ( not regular models, based on probaility kernels)
     def __init__(self, step_minutes, cell_km, radius=5, fit_step_minutes=None):
         self.step_minutes = step_minutes
         self.fit_step_minutes = fit_step_minutes or step_minutes     # horizon measured on real tracks
@@ -117,12 +105,10 @@ class MovementModel:
         self.boat_ids = sorted(res["vessel_id"].unique().tolist())
         return self
 
-    def stay_probability(self):
-        """Chance the boat is still in the same cell as predicted."""
+    def stay_probability(self):# how likely is the boat in the same cell
         return float(self.kernel[self.radius, self.radius])
 
-    def drift_cells(self, v_east, v_north):
-        """Predicted movement in cells per step (dx right, dy down) from a velocity in km per minute."""
+    def drift_cells(self, v_east, v_north):# how likely is the boat to drift to other cells
         return v_east * self.step_minutes / self.cell_km, -v_north * self.step_minutes / self.cell_km
 
     def table(self):
@@ -133,8 +119,7 @@ class MovementModel:
         return pd.DataFrame(rows).sort_values("probability", ascending=False).reset_index(drop=True)
 
 
-def default_kernel(radius=5, p_stay=0.83, p_side=0.027, p_diag=0.009):
-    """A fixed fallback table (close to the one measured on real tracks), used when the tracks are missing."""
+def default_kernel(radius=5, p_stay=0.83, p_side=0.027, p_diag=0.009):#when real data is not available
     kernel = np.zeros((2 * radius + 1, 2 * radius + 1))
     c = radius
     kernel[c, c] = p_stay
@@ -148,8 +133,7 @@ def default_kernel(radius=5, p_stay=0.83, p_side=0.027, p_diag=0.009):
         kernel[y, x] = rest / len(ring)
     return kernel
 
-def load_demo_kernel():
-    """Return (kernel, source). Fit on real training fishing boats if possible, otherwise use the fallback."""
+def load_demo_kernel():# return the kernel probs
     try:
         tracks = pd.read_csv(TRACKS_FILE, parse_dates=["time"])
         split = load_or_make_split(tracks)

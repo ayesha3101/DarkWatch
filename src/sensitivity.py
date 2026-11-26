@@ -1,12 +1,5 @@
-"""When does the belief start to matter? Compare strategies as boats get faster and go dark sooner.
-
-Run:  python src/sensitivity.py
-      python src/sensitivity.py --episodes 40 --seed 42 --with-mcts
-
-Six settings: boat speed (slow, medium, fast) x chance per step that AIS goes off (0.08 or 0.25).
-Strategies: Random, Last known position, Greedy belief, Belief + A* (and MCTS with --with-mcts).
-Every strategy sees the same boats within a setting. Nothing here changes the agents.
-"""
+#k check kerha k jo humari patrol starategies wou tab bhi reliable hain if ( k humari boat ki speeds change hojaaajeyin, tou accurate result degi ya)
+# and check on 2 diff ais switch probs 0.08, 0.25
 import argparse
 from pathlib import Path
 
@@ -30,7 +23,6 @@ GREEN, BLACK, GREY = "#2e8b57", "#111111", "#999999"
 
 def settings():
     return [(f"{label}, AIS off {p:.2f}", WorldConfig(boat_knots=knots, p_dark=p)) for label, knots in SPEEDS for p in DARK_CHANCES]
-
 
 def run_setting(name, config, agents, data, kernel, episodes, seed):
     rows = []

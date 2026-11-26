@@ -1,17 +1,4 @@
-"""The patrol problem that the generic MCTS in mcts.py plans for (Lab 8).
-
-Public state    (patrol cell, fuel left). It does not depend on where the boats really are.
-Action          head for one of a few candidate cells (the cells with the most belief).
-Hidden world    for every simulation we SAMPLE a position for each dark boat from its belief
-                (a "particle"), then let those particles move with the same movement model
-                the belief uses. Many simulations with different samples cover the uncertainty.
-Reward          boats found in the step, minus a small price for the fuel burnt
-                (PRICE_OF_FUEL = 0.01, so one boat is worth 100 fuel units).
-Evaluation      after the tree depth is used up, a rollout takes ROLLOUT_STEPS more steps,
-                each time heading for a random candidate. Its total reward is the leaf value.
-Limits          at most max_depth levels of the tree (3) and `simulations` simulations
-                (tested with a sweep in src/mcts_sweep.py).
-"""
+#
 import bisect
 import math
 
@@ -23,8 +10,6 @@ _CACHES = {}
 
 
 class PathCache:
-    """Cheapest routes from any cell. Each start cell is worked out once (full Dijkstra) and remembered."""
-
     def __init__(self, cost):
         self.planner = AStar(cost)
         self.trees = {}
@@ -32,7 +17,6 @@ class PathCache:
 
     @classmethod
     def for_grid(cls, cost):
-        """One shared cache per map, so it also survives from one episode to the next."""
         key = hash(np.asarray(cost, dtype=float).tobytes())
         if key not in _CACHES:
             _CACHES[key] = cls(cost)
@@ -44,12 +28,9 @@ class PathCache:
         return self.trees[start]
 
     def cost(self, start, goal):
-        """Cheapest fuel cost from start to goal (infinity if there is no route)."""
         return self._tree(start)[0].get(goal, math.inf)
 
     def move(self, start, goal, budget):
-        """Walk from start toward goal along the cheapest route, using at most `budget` fuel.
-        Returns (cell reached, fuel spent). Stays put if the goal is unreachable."""
         key = (start, goal, round(budget, 3))
         if key not in self.moves:
             dist, parent = self._tree(start)
@@ -64,7 +45,6 @@ class PathCache:
 
 
 def spaced_candidates(mass, k=6, spacing=3):
-    """The k cells with the most belief, no two closer than `spacing` cells (so they are different places)."""
     chosen = []
     for flat in np.argsort(mass, axis=None)[::-1]:
         y, x = divmod(int(flat), mass.shape[1])
@@ -78,11 +58,8 @@ def spaced_candidates(mass, k=6, spacing=3):
 
 
 class PatrolProblem:
-    """Fits the interface that mcts.MCTS expects (see the top of mcts.py)."""
-
     PRICE_OF_FUEL = 0.01
     ROLLOUT_STEPS = 3
-
     def __init__(self, cost, kernel, config, paths, beliefs, velocities, candidates):
         self.config, self.paths, self.candidates = config, paths, candidates
         self.water = np.isfinite(cost)

@@ -79,11 +79,7 @@ class Planner:
         raise NotImplementedError
 
     def distances_from(self, start):
-        """Cheapest cost from `start` to EVERY reachable cell (Dijkstra without a goal).
-
-        Returns (dist, parent): dist[cell] is the cost, and following parent links from any
-        cell leads back to start. Used when many routes from the same cell are needed (MCTS).
-        """
+        
         tie = itertools.count(1)
         dist, parent, done = {start: 0.0}, {start: None}, set()
         heap = [(0.0, 0, start)]
@@ -100,13 +96,6 @@ class Planner:
 
 
 class BFS(Planner):
-    """Breadth-first search: expands cells by number of moves, using a FIFO queue.
-
-    It finds the path with the fewest moves, which is NOT always the cheapest path
-    here, because cells have different costs. max_cost (the fuel limit) is only used
-    to skip cells that are already too expensive.
-    """
-
     name = "BFS"
 
     def search(self, start, goal, max_cost=None):
@@ -140,12 +129,9 @@ class BFS(Planner):
 
 
 class UCS(Planner):
-    """Uniform-cost search: always expands the cheapest cell so far (priority queue on g)."""
-
     name = "UCS"
 
     def priority(self, g, state, goal):
-        """What the priority queue sorts by. UCS uses only the cost so far."""
         return g
 
     def search(self, start, goal, max_cost=None):
@@ -181,16 +167,6 @@ class UCS(Planner):
 
 
 class AStar(UCS):
-    """A* search: like UCS, but sorts by f = g + h, where h estimates the cost still to go.
-
-    Heuristic h = (octile distance to the goal) x (cheapest cell cost in the grid).
-    Octile distance is the number of moves needed on an empty 8-connected grid:
-    max(dx, dy) + (sqrt(2) - 1) * min(dx, dy). Why it is admissible (never too high):
-    every real move costs at least min_cost times 1 (straight) or sqrt(2) (diagonal),
-    and no path can reach the goal with fewer moves than the octile distance.
-    It is also consistent, so A* never needs to re-open a cell.
-    """
-
     name = "A*"
 
     def heuristic(self, state, goal):

@@ -18,7 +18,6 @@ N_ROWS, N_COLS = 21, 26                    # lat 25.0 to 23.0 and lon 65.0 to 67
 
 
 def cell_centres():
-    """Latitude and longitude of every grid cell, shape (N_ROWS, N_COLS)."""
     lats = LAT_MAX - STEP * np.arange(N_ROWS)
     lons = LON_MIN + STEP * np.arange(N_COLS)
     lon_grid, lat_grid = np.meshgrid(lons, lats)
@@ -26,7 +25,7 @@ def cell_centres():
 
 
 def build_hours_grid(cells):
-    """Put each cell's hours into the grid. Returns (grid, number of cells outside)."""
+    #assign cells to the grids
     rows = np.round((LAT_MAX - cells["lat"].to_numpy()) / STEP).astype(int)
     cols = np.round((cells["lon"].to_numpy() - LON_MIN) / STEP).astype(int)
     inside = (rows >= 0) & (rows < N_ROWS) & (cols >= 0) & (cols < N_COLS)
@@ -35,8 +34,7 @@ def build_hours_grid(cells):
     return grid, int((~inside).sum())
 
 
-def build_land_mask():
-    """True where a grid cell is land."""
+def build_land_mask(): #builds where there is land
     from global_land_mask import globe
     lat_grid, lon_grid = cell_centres()
     return globe.is_land(lat_grid, lon_grid)

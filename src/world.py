@@ -1,17 +1,4 @@
-"""The patrol environment: boats that move and go dark, and a patrol with fuel and a sensor.
-
-PEAS (Lab 3)
-  Performance  boats found per unit of fuel
-  Environment  grid ocean (cost grid), fishing boats that move, AIS that switches off
-  Actuators    the patrol moves toward a target cell along an A* route (limited per step)
-  Sensors      AIS of boats that are still transmitting; a detection square around the patrol
-
-One step = STEP_MINUTES_DEMO minutes. Everything random comes from ONE seeded stream,
-and the same number of random draws is used every step whatever the patrol does, so two
-patrols on the same seed face exactly the same boats and the same luck.
-
-Agents only get an `Observation` (never the hidden boat positions).
-"""
+#simulated ocean world (boat movement)
 import bisect
 import math
 import random
@@ -212,8 +199,6 @@ class World:
         return self.observation()
 
     def found_by(self, budget):
-        """Boats found by the time `budget` fuel units had been used. After the episode ends the count stays flat,
-        so a strategy that stops early is not punished (and not rewarded) for the fuel it did not use."""
         count = 0
         for used, found in self.trace:
             if used > budget + 1e-9:

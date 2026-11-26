@@ -71,7 +71,6 @@ def main():
     parser.add_argument("csv_path", type=Path)
     parser.add_argument("--max-rows", type=int, default=2_000_000)
     args = parser.parse_args()
-
     try:
         check_header(args.csv_path)
         ship_counts = pd.Series(dtype="float64")
